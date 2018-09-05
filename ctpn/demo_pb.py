@@ -10,6 +10,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.platform import gfile
 
+from lib.utils.timer import Timer
+
 sys.path.append(os.getcwd())
 from lib.fast_rcnn.config import cfg, cfg_from_file
 from lib.fast_rcnn.test import _get_blobs
@@ -80,6 +82,10 @@ if __name__ == '__main__':
     for im_name in im_names:
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print(('Demo for {:s}'.format(im_name)))
+
+        timer = Timer()
+        timer.tic()
+
         img = cv2.imread(im_name)
         img, scale = resize_im(img, scale=TextLineCfg.SCALE, max_scale=TextLineCfg.MAX_SCALE)
         blobs, im_scales = _get_blobs(img, None)
@@ -95,4 +101,9 @@ if __name__ == '__main__':
         boxes = rois[:, 1:5] / im_scales[0]
         textdetector = TextDetector()
         boxes = textdetector.detect(boxes, scores[:, np.newaxis], img.shape[:2])
+
+        timer.toc()
+        print(('Detection took {:.3f}s for '
+               '{:d} object proposals').format(timer.total_time, boxes.shape[0]))
+
         draw_boxes(img, im_name, boxes, scale)

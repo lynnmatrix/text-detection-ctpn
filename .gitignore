@@ -13,3 +13,4 @@ checkpoints/
 *.so
 *.swp
 *.pb
+tags
