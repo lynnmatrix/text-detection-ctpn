@@ -8,8 +8,10 @@ import sys
 import cv2
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.client import timeline
 from tensorflow.python.platform import gfile
 
+from lib.utils.timeline import TimeLiner
 from lib.utils.timer import Timer
 
 sys.path.append(os.getcwd())
@@ -79,31 +81,57 @@ if __name__ == '__main__':
     im_names = glob.glob(os.path.join(cfg.DATA_DIR, 'demo', '*.png')) + \
                glob.glob(os.path.join(cfg.DATA_DIR, 'demo', '*.jpg'))
 
-    for im_name in im_names:
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print(('Demo for {:s}'.format(im_name)))
+    options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    run_metadata = tf.RunMetadata()
 
-        timer = Timer()
-        timer.tic()
+    timeliner = TimeLiner()
 
-        img = cv2.imread(im_name)
-        img, scale = resize_im(img, scale=TextLineCfg.SCALE, max_scale=TextLineCfg.MAX_SCALE)
-        blobs, im_scales = _get_blobs(img, None)
-        if cfg.TEST.HAS_RPN:
-            im_blob = blobs['data']
-            blobs['im_info'] = np.array(
-                [[im_blob.shape[1], im_blob.shape[2], im_scales[0]]],
-                dtype=np.float32)
-        cls_prob, box_pred = sess.run([output_cls_prob, output_box_pred], feed_dict={input_img: blobs['data']})
-        rois, _ = proposal_layer(cls_prob, box_pred, blobs['im_info'], 'TEST', anchor_scales=cfg.ANCHOR_SCALES)
+    for i in range(5):
+        index = 0
+        total_time = 0
+        for im_name in im_names:
+            print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+            print(('Demo for {:s}'.format(im_name)))
 
-        scores = rois[:, 0]
-        boxes = rois[:, 1:5] / im_scales[0]
-        textdetector = TextDetector()
-        boxes = textdetector.detect(boxes, scores[:, np.newaxis], img.shape[:2])
+            timer = None
+            if i == 4:
+                timer = Timer()
+                timer.tic()
 
-        timer.toc()
-        print(('Detection took {:.3f}s for '
-               '{:d} object proposals').format(timer.total_time, boxes.shape[0]))
+            img = cv2.imread(im_name)
+            img, scale = resize_im(img, scale=TextLineCfg.SCALE, max_scale=TextLineCfg.MAX_SCALE)
+            blobs, im_scales = _get_blobs(img, None)
+            if cfg.TEST.HAS_RPN:
+                im_blob = blobs['data']
+                blobs['im_info'] = np.array(
+                    [[im_blob.shape[1], im_blob.shape[2], im_scales[0]]],
+                    dtype=np.float32)
 
-        draw_boxes(img, im_name, boxes, scale)
+            cls_prob, box_pred = sess.run([output_cls_prob, output_box_pred],
+                                          feed_dict={input_img: blobs['data']},
+                                          options=options,
+                                          run_metadata=run_metadata)
+            rois, _ = proposal_layer(cls_prob, box_pred, blobs['im_info'], 'TEST', anchor_scales=cfg.ANCHOR_SCALES)
+
+            scores = rois[:, 0]
+            boxes = rois[:, 1:5] / im_scales[0]
+            textdetector = TextDetector()
+            boxes = textdetector.detect(boxes, scores[:, np.newaxis], img.shape[:2])
+
+            if i == 4:
+                timer.toc()
+                print(('Detection took {:.3f}s for '
+                       '{:d} object proposals').format(timer.total_time, boxes.shape[0]))
+                total_time += timer.total_time
+
+                fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+                chrome_trace = fetched_timeline.generate_chrome_trace_format()
+                with open('timeline_last_%d.json' % index, 'w') as f:
+                    f.write(chrome_trace)
+                timeliner.update_timeline(chrome_trace)
+
+            draw_boxes(img, im_name, boxes, scale)
+            index += 1
+        if i == 4:
+            timeliner.save('timeline_03_merged_%d_runs.json' % len(im_names))
+            print('Average time:{:.3f}s'.format(total_time / len(im_names)))
