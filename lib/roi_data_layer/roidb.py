@@ -1,5 +1,5 @@
 import numpy as np
-import PIL
+from PIL import Image
 from lib.fast_rcnn.config import cfg
 from lib.fast_rcnn.bbox_transform import bbox_transform
 from lib.utils.bbox import bbox_overlaps
@@ -11,7 +11,7 @@ def prepare_roidb(imdb):
     each ground-truth box. The class with maximum overlap is also
     recorded.
     """
-    sizes = [PIL.Image.open(imdb.image_path_at(i)).size
+    sizes = [Image.open(imdb.image_path_at(i)).size
              for i in range(imdb.num_images)]
     roidb = imdb.roidb
     for i in range(len(imdb.image_index)):
