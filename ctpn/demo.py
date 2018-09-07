@@ -58,6 +58,7 @@ def ctpn(sess, net, image_name):
 
     img = cv2.imread(image_name)
     img, scale = resize_im(img, scale=TextLineCfg.SCALE, max_scale=TextLineCfg.MAX_SCALE)
+
     scores, boxes = test_ctpn(sess, net, img)
 
     textdetector = TextDetector()

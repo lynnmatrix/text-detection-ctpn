@@ -1,5 +1,9 @@
 import numpy as np
 import cv2
+
+# import tensorflow as tf
+
+from ..rpn_msr.proposal_layer_tf import proposal_layer
 from .config import cfg
 from ..utils.blob import im_list_to_blob
 
@@ -52,6 +56,34 @@ def test_ctpn(sess, net, im, boxes=None):
     rois = sess.run([net.get_output('rois')[0]], feed_dict=feed_dict)
 
     rois = rois[0]
+    scores = rois[:, 0]
+
+    if cfg.TEST.HAS_RPN:
+        assert len(im_scales) == 1, "Only single-image batch implemented"
+        boxes = rois[:, 1:5] / im_scales[0]
+    return scores, boxes
+
+
+def test_ctpn_pb(sess, input_tensor, outputs, im, boxes=None):
+    blobs, im_scales = _get_blobs(im, boxes)
+
+    if cfg.TEST.HAS_RPN:
+        im_blob = blobs['data']
+        blobs['im_info'] = np.array(
+            [[im_blob.shape[1], im_blob.shape[2], im_scales[0]]],
+            dtype=np.float32)
+
+    # options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    # run_metadata = tf.RunMetadata()
+
+    cls_prob, box_pred = sess.run(outputs,
+                                  feed_dict={input_tensor: blobs['data']}
+                                  # ,
+                                  # options=options,
+                                  # run_metadata=run_metadata
+                                  )
+    rois, _ = proposal_layer(cls_prob, box_pred, blobs['im_info'], 'TEST', anchor_scales=cfg.ANCHOR_SCALES)
+
     scores = rois[:, 0]
 
     if cfg.TEST.HAS_RPN:

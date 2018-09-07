@@ -56,7 +56,7 @@ def draw_boxes(img, image_name, boxes, scale):
 
 
 if __name__ == '__main__':
-
+    os.system("echo $PYTHONPATH")
     if os.path.exists("data/results/"):
         shutil.rmtree("data/results/")
     os.makedirs("data/results/")
@@ -115,6 +115,7 @@ if __name__ == '__main__':
 
             scores = rois[:, 0]
             boxes = rois[:, 1:5] / im_scales[0]
+
             textdetector = TextDetector()
             boxes = textdetector.detect(boxes, scores[:, np.newaxis], img.shape[:2])
 
