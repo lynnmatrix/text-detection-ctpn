@@ -8,11 +8,10 @@ import sys
 import cv2
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.client import timeline
-from tensorflow.python.platform import gfile
-
 from lib.utils.timeline import TimeLiner
 from lib.utils.timer import Timer
+from tensorflow.python.client import timeline
+from tensorflow.python.platform import gfile
 
 sys.path.append(os.getcwd())
 from lib.fast_rcnn.config import cfg, cfg_from_file

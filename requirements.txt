@@ -1,8 +1,9 @@
 easydict
-tensorflow-gpu
 scipy
 numpy
 opencv_python
 Cython
 Pillow
 PyYAML
+tensorflow-gpu
+

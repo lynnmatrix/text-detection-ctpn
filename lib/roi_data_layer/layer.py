@@ -1,6 +1,6 @@
 import numpy as np
-from lib.fast_rcnn.config import cfg
-from lib.roi_data_layer.minibatch import get_minibatch
+from ..fast_rcnn.config import cfg
+from ..roi_data_layer.minibatch import get_minibatch
 
 class RoIDataLayer(object):
     """Fast R-CNN data layer used for training."""
