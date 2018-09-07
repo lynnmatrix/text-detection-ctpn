@@ -99,6 +99,7 @@ if __name__ == '__main__':
 
             img = cv2.imread(im_name)
             img, scale = resize_im(img, scale=TextLineCfg.SCALE, max_scale=TextLineCfg.MAX_SCALE)
+
             blobs, im_scales = _get_blobs(img, None)
             if cfg.TEST.HAS_RPN:
                 im_blob = blobs['data']
