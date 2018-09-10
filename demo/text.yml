@@ -1,5 +1,5 @@
 EXP_DIR: ctpn_end2end
-LOG_DIR: ctpn
+LOG_DIR: demo
 IS_MULTISCALE: False
 NET_NAME: VGGnet
 ANCHOR_SCALES: [16]

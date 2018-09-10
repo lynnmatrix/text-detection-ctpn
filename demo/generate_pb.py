@@ -11,7 +11,7 @@ from lib.networks.factory import get_network
 from lib.fast_rcnn.config import cfg, cfg_from_file
 
 if __name__ == "__main__":
-    cfg_from_file('ctpn/text.yml')
+    cfg_from_file('demo/text.yml')
 
     config = tf.ConfigProto(allow_soft_placement=True)
     sess = tf.Session(config=config)

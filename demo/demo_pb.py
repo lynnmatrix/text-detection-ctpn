@@ -61,7 +61,7 @@ if __name__ == '__main__':
         shutil.rmtree("data/results/")
     os.makedirs("data/results/")
 
-    cfg_from_file('ctpn/text.yml')
+    cfg_from_file('demo/text.yml')
 
     # init session
     config = tf.ConfigProto(allow_soft_placement=True)
