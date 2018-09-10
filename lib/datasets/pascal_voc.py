@@ -9,7 +9,7 @@ except:
 import uuid
 import xml.etree.ElementTree as ET
 from .imdb import imdb
-from lib.fast_rcnn.config import cfg
+from ..fast_rcnn.config import cfg
 
 class pascal_voc(imdb):
     def __init__(self, image_set, year, devkit_path=None):

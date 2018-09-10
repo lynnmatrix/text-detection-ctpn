@@ -1,10 +1,12 @@
 import numpy as np
 from .config import cfg
 pure_python_nms = False
+
 try:
-    from lib.utils.gpu_nms import gpu_nms
+    from ..utils.gpu_nms import gpu_nms
     from ..utils.cython_nms import nms as cython_nms
-except ImportError:
+except ImportError as e:
+    print(e.message)
     pure_python_nms = True
 
 
