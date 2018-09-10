@@ -7,7 +7,7 @@ from .text_proposal_connector_oriented import TextProposalConnector as TextPropo
 from .text_connect_cfg import Config as TextLineCfg
 
 
-class TextDetector:
+class TextFilter:
     def __init__(self):
         self.mode= cfg.TEST.DETECT_MODE
         if self.mode == "H":

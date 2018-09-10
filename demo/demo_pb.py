@@ -16,7 +16,7 @@ from tensorflow.python.platform import gfile
 sys.path.append(os.getcwd())
 from lib.fast_rcnn.config import cfg, cfg_from_file
 from lib.fast_rcnn.test import _get_blobs
-from lib.text_connector.detectors import TextDetector
+from lib.text_connector.detectors import TextFilter
 from lib.text_connector.text_connect_cfg import Config as TextLineCfg
 from lib.rpn_msr.proposal_layer_tf import proposal_layer
 
@@ -116,8 +116,8 @@ if __name__ == '__main__':
             scores = rois[:, 0]
             boxes = rois[:, 1:5] / im_scales[0]
 
-            textdetector = TextDetector()
-            boxes = textdetector.detect(boxes, scores[:, np.newaxis], img.shape[:2])
+            text_filter = TextFilter()
+            boxes = text_filter.detect(boxes, scores[:, np.newaxis], img.shape[:2])
 
             if i == 4:
                 timer.toc()

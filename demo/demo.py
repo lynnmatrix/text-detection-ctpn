@@ -14,7 +14,7 @@ from ctpn.lib.networks.factory import get_network
 from ctpn.lib.fast_rcnn.config import cfg, cfg_from_file
 from ctpn.lib.fast_rcnn.test import test_ctpn
 from ctpn.lib.utils.timer import Timer
-from ctpn.lib.text_connector.detectors import TextDetector
+from ctpn.lib.text_connector.detectors import TextFilter
 from ctpn.lib.text_connector.text_connect_cfg import Config as TextLineCfg
 
 
@@ -61,8 +61,8 @@ def ctpn(sess, net, image_name):
 
     scores, boxes = test_ctpn(sess, net, img)
 
-    textdetector = TextDetector()
-    boxes = textdetector.detect(boxes, scores[:, np.newaxis], img.shape[:2])
+    text_filter = TextFilter()
+    boxes = text_filter.detect(boxes, scores[:, np.newaxis], img.shape[:2])
     draw_boxes(img, image_name, boxes, scale)
     timer.toc()
     print(('Detection took {:.3f}s for '
