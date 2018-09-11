@@ -8,12 +8,13 @@ except:
     import pickle
 import uuid
 import xml.etree.ElementTree as ET
-from .imdb import imdb
+from .imdb import Imdb
 from ..fast_rcnn.config import cfg
 
-class pascal_voc(imdb):
+
+class PascalVoc(Imdb):
     def __init__(self, image_set, year, devkit_path=None):
-        imdb.__init__(self, 'voc_' + year + '_' + image_set)
+        Imdb.__init__(self, 'voc_' + year + '_' + image_set)
         self._year = year
         self._image_set = image_set
         self._devkit_path = self._get_default_path() if devkit_path is None \
@@ -105,7 +106,7 @@ class pascal_voc(imdb):
         if int(self._year) == 2007 or self._image_set != 'test':
             gt_roidb = self.gt_roidb()
             rpn_roidb = self._load_rpn_roidb(gt_roidb)
-            roidb = imdb.merge_roidbs(gt_roidb, rpn_roidb)
+            roidb = Imdb.merge_roidbs(gt_roidb, rpn_roidb)
         else:
             roidb = self._load_rpn_roidb(None)
 
@@ -141,11 +142,28 @@ class pascal_voc(imdb):
         # Load object bounding boxes into a data frame.
         for ix, obj in enumerate(objs):
             bbox = obj.find('bndbox')
-            # Make pixel indexes 0-based
-            x1 = float(bbox.find('xmin').text)
-            y1 = float(bbox.find('ymin').text)
-            x2 = float(bbox.find('xmax').text)
-            y2 = float(bbox.find('ymax').text)
+            if bbox is not None:
+                # Make pixel indexes 0-based
+                x1 = float(bbox.find('xmin').text)
+                y1 = float(bbox.find('ymin').text)
+                x2 = float(bbox.find('xmax').text)
+                y2 = float(bbox.find('ymax').text)
+            else:
+                rondbox = obj.find('robndbox')
+                cx = float(rondbox.find('cx').text)
+                cy = float(rondbox.find('cy').text)
+                w = float(rondbox.find('w').text)
+                h = float(rondbox.find('h').text)
+                angle = float(rondbox.find('angle').text)
+                if abs(angle) > 0.01:
+                    print('annotation in {} has object with angle {}'.format(index, angle))
+                    continue
+
+                x1 = cx - w / 2
+                y1 = cy - h / 2
+                x2 = cx + w / 2
+                y2 = cy + h / 2
+
             diffc = obj.find('difficult')
             difficult = 0 if diffc == None else int(diffc.text)
             ishards[ix] = difficult
@@ -198,6 +216,6 @@ class pascal_voc(imdb):
 
 
 if __name__ == '__main__':
-    d = pascal_voc('trainval', '2007')
+    d = PascalVoc('trainval', '2007')
     res = d.roidb
     from IPython import embed; embed()

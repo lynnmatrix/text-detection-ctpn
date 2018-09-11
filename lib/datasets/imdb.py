@@ -6,7 +6,8 @@ import scipy.sparse
 from ..utils.bbox import bbox_overlaps
 from ..fast_rcnn.config import cfg
 
-class imdb(object):
+
+class Imdb(object):
 
     def __init__(self, name):
         self._name = name

@@ -1,4 +1,4 @@
-from .imdb import imdb
-from .pascal_voc import pascal_voc
+from .imdb import Imdb
+from .pascal_voc import PascalVoc
 from . import factory
 
