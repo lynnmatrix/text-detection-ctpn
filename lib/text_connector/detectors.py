@@ -1,4 +1,5 @@
-#coding:utf-8
+# -*- coding:utf-8 -*-
+
 import numpy as np
 from ..fast_rcnn.nms_wrapper import nms
 from ..fast_rcnn.config import cfg
